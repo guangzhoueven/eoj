@@ -8,7 +8,7 @@ import { t } from '../../i18n';
 import { useSSRPage } from '../../ssr/useSSRPage';
 import DOMPurify from 'dompurify';
 import {
-  Search, Trash2, Edit3, X, ChevronLeft, ChevronRight, FileText, Save, Download, Upload,
+  Search, Trash2, Edit3, X, ChevronLeft, ChevronRight, FileText, Save, Download, Upload, Terminal,
 } from 'lucide-react';
 import '../Admin.css';
 
@@ -110,6 +110,7 @@ export default function AdminProblems() {
   // 标签树仅在编辑表单打开时加载一次
   useEffect(() => {
     if (editingProblem !== null && tagTree.length === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- standard fetch-on-demand pattern
       setTagTreeLoading(true);
       api.getTagsTree()
         .then((data) => setTagTree(data.categories || []))
@@ -285,6 +286,18 @@ export default function AdminProblems() {
 
   return (
     <div className="admin-form">
+      <div className="admin-page-header">
+        <div className="admin-page-header-left">
+          <h1 className="admin-page-title">
+            <FileText size={22} />
+            {t('admin.problemManagement')}
+          </h1>
+          <span className="admin-page-subtitle">
+            管理题库内容,支持搜索、编辑、删除,以及批量导入导出(FPS / JSON)。
+          </span>
+        </div>
+      </div>
+
       <div className="admin-search">
         <Search size={16} />
         <input
@@ -298,7 +311,7 @@ export default function AdminProblems() {
         />
       </div>
 
-      <div className="admin-actions" style={{ display: 'flex', gap: '12px', marginBottom: '16px', flexWrap: 'wrap' }}>
+      <div className="admin-actions">
         <button className="btn btn-secondary btn-sm" onClick={handleExportProblems} disabled={isExporting || isImporting}>
           <Download size={14} /> {t('admin.exportProblems')}
         </button>
@@ -309,22 +322,19 @@ export default function AdminProblems() {
       </div>
 
       {(actionLog.length > 0 || isExporting || isImporting) && (
-        <div style={{
-          border: '1px solid #e0e0e0',
-          borderRadius: 8,
-          padding: 12,
-          marginBottom: 16,
-          backgroundColor: '#fafafa',
-        }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, marginBottom: 8 }}>
-            <div style={{ fontWeight: 600 }}>{actionStatus || t('admin.noActionLogs')}</div>
+        <div className="admin-log-panel">
+          <div className="admin-log-panel-head">
+            <div className="admin-log-panel-title">
+              <Terminal size={14} />
+              {t('admin.exportProblems')} / {t('admin.importProblems')}
+            </div>
             {(isExporting || isImporting) && (
-              <span style={{ fontStyle: 'italic', color: '#666' }}>{t('admin.processing')}</span>
+              <span className="admin-log-panel-status">{t('admin.processing')}</span>
             )}
           </div>
-          <div style={{ maxHeight: 180, overflowY: 'auto', fontSize: 13, lineHeight: 1.6 }}>
+          <div className="admin-log-panel-body">
             {actionLog.length === 0 ? (
-              <div style={{ color: '#777' }}>{t('admin.noActionLogs')}</div>
+              <div className="admin-log-panel-empty">{actionStatus || t('admin.noActionLogs')}</div>
             ) : (
               actionLog.map((line, index) => (
                 <div key={index}>{line}</div>

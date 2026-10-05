@@ -2,7 +2,7 @@ import { Hono } from 'hono';
 import { AppType } from '../types';
 import { authMiddleware, adminMiddleware, superAdminMiddleware } from '../middleware/auth';
 import { escapeLikeWildcard } from '../utils/helpers';
-import { validatePassword } from '../utils/validator';
+import { validatePassword, validateUrl } from '../utils/validator';
 import * as bcrypt from 'bcryptjs';
 
 const users = new Hono<AppType>();
@@ -113,6 +113,68 @@ users.put('/:id/permissions', authMiddleware, superAdminMiddleware, async (c) =>
     .run();
 
   return c.json({ success: true, data: { message: 'Permissions updated' } });
+});
+
+// ─── 用户权限组成员关系 ──────────────────────────────
+// 查询某用户的组列表(admin 可见;用户自己也可查询自己的组以显示权限来源)
+users.get('/:id/groups', authMiddleware, adminMiddleware, async (c) => {
+  const userId = parseInt(c.req.param('id') || '0');
+  const rows = await c.env.DB.prepare(
+    `SELECT g.id, g.name, g.description, g.permissions, g.is_system, g.color, g.sort_order, ug.created_at AS joined_at
+     FROM user_permission_groups ug
+     JOIN permission_groups g ON g.id = ug.group_id
+     WHERE ug.user_id = ?
+     ORDER BY g.sort_order ASC, g.id ASC`
+  ).bind(userId).all();
+  const groups = rows.results.map((r: any) => ({
+    id: r.id,
+    name: r.name,
+    description: r.description || '',
+    permissions: (() => {
+      try { const p = JSON.parse(r.permissions); return Array.isArray(p) ? p : []; } catch { return []; }
+    })(),
+    is_system: r.is_system === 1,
+    color: r.color || '',
+    sort_order: r.sort_order || 0,
+    joined_at: r.joined_at,
+  }));
+  return c.json({ success: true, data: { groups } });
+});
+
+// 设置某用户的组(整体覆盖,super admin 专属)
+// 安全约束与 PUT /:id/permissions 一致——避免普通 admin 借助组绕过细粒度权限边界
+users.put('/:id/groups', authMiddleware, superAdminMiddleware, async (c) => {
+  const userId = parseInt(c.req.param('id') || '0');
+  if (userId === 1) {
+    return c.json({ success: false, error: { message: 'Cannot modify super admin groups', code: 'FORBIDDEN' } }, 403);
+  }
+  const body: any = await c.req.json();
+  const groupIds: number[] = Array.isArray(body.groupIds) ? body.groupIds.map((x: any) => Number(x)).filter((x: number) => Number.isInteger(x) && x > 0) : [];
+  const user: any = await c.env.DB.prepare('SELECT id FROM users WHERE id = ?').bind(userId).first();
+  if (!user) {
+    return c.json({ success: false, error: { message: 'User not found', code: 'NOT_FOUND' } }, 404);
+  }
+
+  if (groupIds.length > 0) {
+    const placeholders = groupIds.map(() => '?').join(',');
+    const valid: any = await c.env.DB.prepare(
+      `SELECT id FROM permission_groups WHERE id IN (${placeholders})`
+    ).bind(...groupIds).all();
+    const validIds = new Set(valid.results.map((r: any) => r.id));
+    const filtered = groupIds.filter((x) => validIds.has(x));
+    if (filtered.length !== groupIds.length) {
+      return c.json({ success: false, error: { message: 'Some groups do not exist', code: 'BAD_REQUEST' } }, 400);
+    }
+  }
+
+  // 事务性覆盖:user_permission_groups 没有外键级联到 users 之外,
+  // 用 INSERT/DELETE 全替换。D1 支持 batch()。
+  const stmts = [
+    c.env.DB.prepare('DELETE FROM user_permission_groups WHERE user_id = ?').bind(userId),
+    ...groupIds.map((gid) => c.env.DB.prepare('INSERT INTO user_permission_groups (user_id, group_id) VALUES (?, ?)').bind(userId, gid)),
+  ];
+  await c.env.DB.batch(stmts);
+  return c.json({ success: true, data: { message: 'Groups updated' } });
 });
 
 // Admin only: Ban or unban a user
@@ -478,7 +540,7 @@ users.get('/annual-report', authMiddleware, async (c) => {
   const yearStart = `${year}-01-01`;
   const yearEnd = `${year + 1}-01-01`;
 
-  const [subCount, acCount, solvedCount, dayRows, tagRows, monthRows, weekRows] = await Promise.all([
+  const [subCount, acCount, solvedCount, , tagRows, monthRows, weekRows] = await Promise.all([
     c.env.DB.prepare(
       'SELECT COUNT(*) as count FROM submissions WHERE user_id = ? AND created_at >= ? AND created_at < ?'
     ).bind(uid, yearStart, yearEnd).first(),
@@ -858,6 +920,14 @@ users.put('/profile', authMiddleware, async (c) => {
   // Validate signature length
   if (signature !== undefined && signature.length > 200) {
     return c.json({ success: false, error: { message: 'Signature too long (max 200 characters)', code: 'BAD_REQUEST' } }, 400);
+  }
+
+  // Validate avatar URL scheme — block javascript:/vbscript: etc. (stored XSS vector)
+  if (avatarUrl !== undefined) {
+    const urlError = validateUrl(avatarUrl);
+    if (urlError) {
+      return c.json({ success: false, error: { message: `Invalid avatar URL: ${urlError}`, code: 'BAD_REQUEST' } }, 400);
+    }
   }
 
   // Build update query dynamically

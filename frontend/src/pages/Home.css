@@ -16,12 +16,12 @@
   border-radius: var(--radius-lg);
 }
 
-/* Default & Hydro theme: hero with gradient background */
+/* Default & Flat theme: hero with subtle accent-tinted background (was a duotone gradient — flattened for a more professional look) */
 [data-theme-style="default"] .home-hero,
-[data-theme-style="hydro"] .home-hero {
-  background: linear-gradient(135deg, var(--accent-light), var(--info-bg));
+[data-theme-style="flat"] .home-hero {
+  background: var(--accent-light);
   border: 1px solid var(--accent-light);
-  padding: 32px;
+  padding: 28px;
 }
 
 .home-hero-left {
@@ -37,15 +37,12 @@
   margin: 0;
 }
 
-/* Default & Hydro: larger gradient title */
+/* Default & Flat: larger solid accent title (was duotone gradient text — flattened) */
 [data-theme-style="default"] .home-title,
-[data-theme-style="hydro"] .home-title {
-  font-size: 28px;
-  font-weight: 800;
-  background: linear-gradient(135deg, var(--accent), var(--info));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+[data-theme-style="flat"] .home-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--accent);
 }
 
 .home-date {
@@ -61,9 +58,9 @@
   color: var(--text-secondary);
 }
 
-/* Default & Hydro: larger welcome text */
+/* Default & Flat: larger welcome text */
 [data-theme-style="default"] .home-welcome,
-[data-theme-style="hydro"] .home-welcome {
+[data-theme-style="flat"] .home-welcome {
   font-size: 15px;
   color: var(--text-primary);
   font-weight: 500;
@@ -76,9 +73,9 @@
   min-width: 320px;
 }
 
-/* Default & Hydro: no min-width on stats grid */
+/* Default & Flat: no min-width on stats grid */
 [data-theme-style="default"] .home-stats-grid,
-[data-theme-style="hydro"] .home-stats-grid {
+[data-theme-style="flat"] .home-stats-grid {
   min-width: auto;
   gap: 10px;
 }
@@ -98,9 +95,9 @@
   transition: all var(--transition, 0.15s);
 }
 
-/* Default & Hydro: stat card uses bg-card */
+/* Default & Flat: stat card uses bg-card */
 [data-theme-style="default"] .home-stat-card,
-[data-theme-style="hydro"] .home-stat-card {
+[data-theme-style="flat"] .home-stat-card {
   background: var(--bg-card);
 }
 
@@ -109,9 +106,9 @@
   color: var(--accent);
 }
 
-/* Default & Hydro: stat card hover changes bg */
+/* Default & Flat: stat card hover changes bg */
 [data-theme-style="default"] .home-stat-card:hover,
-[data-theme-style="hydro"] .home-stat-card:hover {
+[data-theme-style="flat"] .home-stat-card:hover {
   background: var(--bg-secondary);
   color: var(--text-primary);
 }
@@ -142,9 +139,9 @@
   line-height: 1.6;
 }
 
-/* Default & Hydro: announcement with gradient bg and full border */
+/* Default & Flat: announcement with gradient bg and full border */
 [data-theme-style="default"] .home-announcement,
-[data-theme-style="hydro"] .home-announcement {
+[data-theme-style="flat"] .home-announcement {
   border-left: none;
   background: var(--accent-light);
   border: 1px solid var(--accent-light);
@@ -188,7 +185,7 @@
   color: var(--text-primary);
 }
 
-/* ── Hitokoto (horizontal bar like Luogu) ── */
+/* ── Hitokoto (horizontal bar like Classic) ── */
 .home-hitokoto {
   display: flex;
   align-items: center;
@@ -407,9 +404,9 @@
   background: var(--bg-tertiary);
 }
 
-/* Default & Hydro: no tertiary bg on card header */
+/* Default & Flat: no tertiary bg on card header */
 [data-theme-style="default"] .home-card-header,
-[data-theme-style="hydro"] .home-card-header {
+[data-theme-style="flat"] .home-card-header {
   background: none;
   padding: 14px 18px;
 }
@@ -438,15 +435,15 @@
   border-radius: 2px;
 }
 
-/* Default & Hydro: no left accent bar on h2 */
+/* Default & Flat: no left accent bar on h2 */
 [data-theme-style="default"] .home-card-header h2,
-[data-theme-style="hydro"] .home-card-header h2 {
+[data-theme-style="flat"] .home-card-header h2 {
   padding-left: 0;
   font-size: 15px;
 }
 
 [data-theme-style="default"] .home-card-header h2::before,
-[data-theme-style="hydro"] .home-card-header h2::before {
+[data-theme-style="flat"] .home-card-header h2::before {
   display: none;
 }
 
@@ -497,15 +494,15 @@
   border-left-color: var(--accent);
 }
 
-/* Default & Hydro: no left accent bar, larger padding */
+/* Default & Flat: no left accent bar, larger padding */
 [data-theme-style="default"] .home-item,
-[data-theme-style="hydro"] .home-item {
+[data-theme-style="flat"] .home-item {
   border-left: none;
   padding: 10px 18px;
 }
 
 [data-theme-style="default"] .home-item:hover,
-[data-theme-style="hydro"] .home-item:hover {
+[data-theme-style="flat"] .home-item:hover {
   background: var(--bg-secondary);
   border-left-color: transparent;
 }
@@ -576,22 +573,22 @@
   }
 }
 
-/* Default & Hydro: centered hero on mobile */
+/* Default & Flat: centered hero on mobile */
 @media (max-width: 768px) {
   [data-theme-style="default"] .home-hero,
-  [data-theme-style="hydro"] .home-hero {
+  [data-theme-style="flat"] .home-hero {
     text-align: center;
     align-items: center;
     padding: 20px;
   }
 
   [data-theme-style="default"] .home-hero-left,
-  [data-theme-style="hydro"] .home-hero-left {
+  [data-theme-style="flat"] .home-hero-left {
     align-items: center;
   }
 
   [data-theme-style="default"] .home-stats-grid,
-  [data-theme-style="hydro"] .home-stats-grid {
+  [data-theme-style="flat"] .home-stats-grid {
     width: 100%;
     min-width: 0;
   }

@@ -684,6 +684,16 @@ const ENTRIES: LoaderEntry[] = [
     },
   },
 
+  // ──── 管理后台:权限组管理 ────
+  {
+    match: (p) => p === '/admin/permission-groups',
+    pageKey: 'adminPermissionGroups',
+    load: async (ctx) => {
+      if (!ctx.user) return {};
+      return { groups: await callApi(ctx, '/api/v1/permission-groups/') };
+    },
+  },
+
   // ──── 管理后台:比赛管理 ────
   {
     match: (p) => p === '/admin/contests',
@@ -937,7 +947,13 @@ export async function buildGlobalData(ctx: LoaderCtx) {
         })()
       : null,
     unreadMessages: unreadData?.count ?? 0,
-    userSettings: userSettings?.settings as { theme?: 'dark' | 'light'; custom_css?: string } | undefined,
+    userSettings: userSettings?.settings as {
+      theme?: 'dark' | 'light';
+      custom_css?: string;
+      theme_accent?: string;
+      theme_radius?: string;
+      theme_font?: string;
+    } | undefined,
     theme,
     language,
     serverTime: Date.now(),

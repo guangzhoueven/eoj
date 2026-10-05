@@ -112,12 +112,13 @@ export default function ProblemList() {
       return;
     }
     firstRunRef.current = false;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    /* eslint-disable react-hooks/set-state-in-effect -- standard mount-time fetch pattern; setState runs after async resolves */
     fetchProblems();
     if (user) {
       fetchUserProgress();
     }
     fetchTags();
+    /* eslint-enable react-hooks/set-state-in-effect */
   }, [user, fetchProblems, fetchUserProgress, fetchTags, ssr]);
 
   const getProblemStatus = (problemId: number) => {

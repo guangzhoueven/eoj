@@ -51,6 +51,31 @@ export interface User {
   following_count?: number;
 }
 
+// ── Permission Group ──
+export interface PermissionGroup {
+  id: number;
+  name: string;
+  description?: string;
+  permissions: string[];
+  is_system?: boolean;
+  color?: string;
+  sort_order?: number;
+  member_count?: number;
+  created_at?: string;
+  updated_at?: string;
+  joined_at?: string;
+}
+
+export interface PermissionGroupMember {
+  id: number;
+  username: string;
+  avatar_url?: string;
+  role?: string;
+  banned?: number;
+  created_at?: string;
+  joined_at?: string;
+}
+
 interface UserStats {
   solved_count: number;
   submission_count: number;
@@ -281,7 +306,7 @@ interface DiscussionReply {
 }
 
 // ── Team ──
-interface Team {
+export interface Team {
   id: number;
   name: string;
   slug: string;
@@ -296,7 +321,7 @@ interface Team {
   username?: string;
 }
 
-interface TeamMember {
+export interface TeamMember {
   id: number;
   team_id: number;
   user_id: number;
@@ -312,7 +337,7 @@ interface TeamMember {
   can_edit_lists?: number;
 }
 
-interface TeamAnnouncement {
+export interface TeamAnnouncement {
   id: number;
   team_id: number;
   user_id: number;
@@ -324,7 +349,7 @@ interface TeamAnnouncement {
   username?: string;
 }
 
-interface TeamDiscussion {
+export interface TeamDiscussion {
   id: number;
   team_id: number;
   user_id: number;
@@ -338,7 +363,7 @@ interface TeamDiscussion {
   username?: string;
 }
 
-interface TeamDiscussionReply {
+export interface TeamDiscussionReply {
   id: number;
   discussion_id: number;
   user_id: number;
@@ -347,7 +372,7 @@ interface TeamDiscussionReply {
   username?: string;
 }
 
-interface TeamProblemSet {
+export interface TeamProblemSet {
   id: number;
   team_id: number;
   user_id: number;
@@ -358,7 +383,7 @@ interface TeamProblemSet {
   updated_at?: string;
 }
 
-interface TeamContest {
+export interface TeamContest {
   id: number;
   team_id: number;
   user_id: number;
@@ -1263,6 +1288,60 @@ class ApiClient {
     return this.request<{ message: string }>(`/users/${userId}/ban`, {
       method: 'PUT',
       body: JSON.stringify({ banned }),
+    });
+  }
+
+  // ─── 权限组 ──────────────────────────────────────────
+  async getPermissionGroups() {
+    return this.request<{ groups: PermissionGroup[] }>('/permission-groups/');
+  }
+
+  async createPermissionGroup(data: { name: string; description?: string; permissions: string[]; color?: string; sort_order?: number }) {
+    return this.request<{ id: number; message: string }>('/permission-groups/', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async updatePermissionGroup(id: number, data: { name?: string; description?: string; permissions?: string[]; color?: string; sort_order?: number }) {
+    return this.request<{ message: string }>(`/permission-groups/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    });
+  }
+
+  async deletePermissionGroup(id: number) {
+    return this.request<{ message: string }>(`/permission-groups/${id}`, { method: 'DELETE' });
+  }
+
+  async getPermissionGroupMembers(id: number, params?: { page?: number; pageSize?: number; search?: string }) {
+    const query = new URLSearchParams();
+    if (params?.page) query.set('page', String(params.page));
+    if (params?.pageSize) query.set('pageSize', String(params.pageSize));
+    if (params?.search) query.set('search', params.search);
+    const qs = query.toString();
+    return this.request<{ members: PermissionGroupMember[]; pagination: Pagination }>(`/permission-groups/${id}/members${qs ? `?${qs}` : ''}`);
+  }
+
+  async addPermissionGroupMember(id: number, userId: number) {
+    return this.request<{ message: string }>(`/permission-groups/${id}/members`, {
+      method: 'POST',
+      body: JSON.stringify({ userId }),
+    });
+  }
+
+  async removePermissionGroupMember(id: number, userId: number) {
+    return this.request<{ message: string }>(`/permission-groups/${id}/members/${userId}`, { method: 'DELETE' });
+  }
+
+  async getUserGroups(userId: number) {
+    return this.request<{ groups: PermissionGroup[] }>(`/users/${userId}/groups`);
+  }
+
+  async updateUserGroups(userId: number, groupIds: number[]) {
+    return this.request<{ message: string }>(`/users/${userId}/groups`, {
+      method: 'PUT',
+      body: JSON.stringify({ groupIds }),
     });
   }
 

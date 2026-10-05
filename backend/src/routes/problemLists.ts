@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { AppType } from '../types';
-import { authMiddleware, adminMiddleware, listAdminMiddleware } from '../middleware/auth';
+import { authMiddleware } from '../middleware/auth';
 import { createRateLimiter } from '../middleware/rateLimit';
 import { escapeLikeWildcard } from '../utils/helpers';
 

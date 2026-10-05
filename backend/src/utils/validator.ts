@@ -63,3 +63,36 @@ export function validateLanguage(language: string): string | null {
   if (!ALLOWED_LANGUAGES.includes(language)) return `Language must be one of: ${ALLOWED_LANGUAGES.join(', ')}`;
   return null;
 }
+
+/**
+ * Validate user-supplied URLs (avatar, signature links, etc.) to block
+ * dangerous schemes such as `javascript:` and `data:` that could be rendered
+ * into `<img src>` / `<a href>` and lead to stored XSS.
+ *
+ * Allowed:
+ *   - empty / null / undefined (treated as "clear")
+ *   - absolute `http://` / `https://` URLs
+ *   - site-relative URLs starting with `/` (excluding protocol-relative `//host`)
+ *   - protocol-safe data URLs for inline images: `data:image/...`
+ */
+export function validateUrl(url: unknown): string | null {
+  if (url === undefined || url === null || url === '') return null;
+  if (typeof url !== 'string') return 'URL must be a string';
+  const trimmed = url.trim();
+  if (trimmed.length === 0) return null;
+  if (trimmed.length > 2048) return 'URL too long (max 2048 characters)';
+  // Site-relative URL: must start with `/` but NOT `//` (protocol-relative).
+  if (trimmed[0] === '/') {
+    if (trimmed[1] === '/') return 'Protocol-relative URLs are not allowed';
+    return null;
+  }
+  // Absolute URL — parse and verify scheme via the URL constructor (throws on bad input).
+  try {
+    const u = new URL(trimmed);
+    if (u.protocol === 'http:' || u.protocol === 'https:') return null;
+    if (u.protocol === 'data:' && /^data:image\//i.test(trimmed)) return null;
+    return `URL scheme "${u.protocol}" not allowed`;
+  } catch {
+    return 'Invalid URL format';
+  }
+}

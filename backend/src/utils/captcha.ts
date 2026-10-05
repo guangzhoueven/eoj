@@ -179,7 +179,7 @@ interface MathProblem {
   answer: string;   // e.g. "46"
 }
 
-function generateMathProblem(cfg: { length: number }): MathProblem {
+function generateMathProblem(): MathProblem {
   const ops = ['+', '-'];
   const op = ops[secureRandInt(0, ops.length)];
   let a: number, b: number;
@@ -244,7 +244,7 @@ export async function createCaptcha(db: D1Database): Promise<CaptchaRecord> {
   const uuid = crypto.randomUUID();
 
   if (captchaType === 'math') {
-    const problem = generateMathProblem(cfg);
+    const problem = generateMathProblem();
     code = problem.answer;
     svg = renderSvg(problem.display, {
       noiseLines: cfg.noiseLines,

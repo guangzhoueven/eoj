@@ -4,9 +4,9 @@
   gap: 16px;
 }
 
-/* Default & Hydro: larger gap */
+/* Default & Flat: larger gap */
 [data-theme-style="default"] .problem-list-page,
-[data-theme-style="hydro"] .problem-list-page {
+[data-theme-style="flat"] .problem-list-page {
   gap: 20px;
 }
 
@@ -36,15 +36,15 @@
   border-radius: 2px;
 }
 
-/* Default & Hydro: no left accent bar on h1 */
+/* Default & Flat: no left accent bar on h1 */
 [data-theme-style="default"] .page-header h1,
-[data-theme-style="hydro"] .page-header h1 {
+[data-theme-style="flat"] .page-header h1 {
   padding-left: 0;
   font-size: 24px;
 }
 
 [data-theme-style="default"] .page-header h1::before,
-[data-theme-style="hydro"] .page-header h1::before {
+[data-theme-style="flat"] .page-header h1::before {
   display: none;
 }
 
@@ -79,15 +79,15 @@
   color: var(--text-muted);
 }
 
-/* Default & Hydro: larger search bar */
+/* Default & Flat: larger search bar */
 [data-theme-style="default"] .search-bar,
-[data-theme-style="hydro"] .search-bar {
+[data-theme-style="flat"] .search-bar {
   padding: 8px 14px;
   color: inherit;
 }
 
 [data-theme-style="default"] .search-bar input,
-[data-theme-style="hydro"] .search-bar input {
+[data-theme-style="flat"] .search-bar input {
   font-size: 14px;
 }
 
@@ -102,9 +102,9 @@
   padding: 12px 16px;
 }
 
-/* Default & Hydro: no card-style filters */
+/* Default & Flat: no card-style filters */
 [data-theme-style="default"] .filters,
-[data-theme-style="hydro"] .filters {
+[data-theme-style="flat"] .filters {
   background: none;
   border: none;
   padding: 0;
@@ -237,17 +237,17 @@
   min-width: 800px;
 }
 
-/* Default & Hydro: uppercase header with letter-spacing */
+/* Default & Flat: uppercase header with letter-spacing */
 [data-theme-style="default"] .problem-table-header,
-[data-theme-style="hydro"] .problem-table-header {
+[data-theme-style="flat"] .problem-table-header {
   text-transform: uppercase;
   letter-spacing: 0.5px;
   grid-template-columns: 36px 50px 1fr 80px 160px 70px 60px 140px;
 }
 
-/* Default & Hydro: no border-bottom on header, border-top on rows */
+/* Default & Flat: no border-bottom on header, border-top on rows */
 [data-theme-style="default"] .problem-row,
-[data-theme-style="hydro"] .problem-row {
+[data-theme-style="flat"] .problem-row {
   border-bottom: none;
   border-top: 1px solid var(--border);
   padding: 12px 14px;
@@ -255,7 +255,7 @@
 }
 
 [data-theme-style="default"] .problem-row:last-child,
-[data-theme-style="hydro"] .problem-row:last-child {
+[data-theme-style="flat"] .problem-row:last-child {
   border-bottom: none;
 }
 
@@ -282,7 +282,7 @@
   background: var(--bg-tertiary);
 }
 
-/* Luogu-style left color bar by difficulty */
+/* Classic-style left color bar by difficulty */
 .problem-row[data-difficulty="暂无难度"] { border-left-color: var(--diff-none); }
 .problem-row[data-difficulty="入门"]     { border-left-color: var(--diff-easy); }
 .problem-row[data-difficulty="普及-"]    { border-left-color: var(--diff-easy-mid); }
@@ -506,16 +506,16 @@
   }
 }
 
-/* Default & Hydro: responsive */
+/* Default & Flat: responsive */
 @media (max-width: 768px) {
   [data-theme-style="default"] .page-header,
-  [data-theme-style="hydro"] .page-header {
+  [data-theme-style="flat"] .page-header {
     flex-direction: column;
     gap: 12px;
   }
 
   [data-theme-style="default"] .search-bar,
-  [data-theme-style="hydro"] .search-bar {
+  [data-theme-style="flat"] .search-bar {
     width: 100%;
   }
 
@@ -528,15 +528,15 @@
   [data-theme-style="default"] .col-limit,
   [data-theme-style="default"] .col-submissions,
   [data-theme-style="default"] .col-rate,
-  [data-theme-style="hydro"] .col-tags,
-  [data-theme-style="hydro"] .col-limit,
-  [data-theme-style="hydro"] .col-submissions,
-  [data-theme-style="hydro"] .col-rate {
+  [data-theme-style="flat"] .col-tags,
+  [data-theme-style="flat"] .col-limit,
+  [data-theme-style="flat"] .col-submissions,
+  [data-theme-style="flat"] .col-rate {
     display: none;
   }
 
   [data-theme-style="default"] .pagination,
-  [data-theme-style="hydro"] .pagination {
+  [data-theme-style="flat"] .pagination {
     flex-wrap: wrap;
     justify-content: center;
   }

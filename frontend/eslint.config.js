@@ -18,5 +18,11 @@ export default defineConfig([
     languageOptions: {
       globals: globals.browser,
     },
+    rules: {
+      // Project permits `any` for rapid iteration on untyped third-party shapes
+      // (see AGENTS.md). Downgrade to warning so new code is still flagged but
+      // existing 700+ sites don't block lint runs.
+      '@typescript-eslint/no-explicit-any': 'warn',
+    },
   },
 ])

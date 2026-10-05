@@ -26,7 +26,13 @@ export interface SSRGlobalData {
   } | null;
   unreadMessages?: number;
   // 用户主题设置(登录用户)
-  userSettings?: { theme?: 'dark' | 'light'; custom_css?: string };
+  userSettings?: {
+    theme?: 'dark' | 'light';
+    custom_css?: string;
+    theme_accent?: string;
+    theme_radius?: string;
+    theme_font?: string;
+  };
   // 客户端主题:从 cookie 或 localStorage 取到的初始值
   theme?: 'dark' | 'light';
   language?: 'zh' | 'en';

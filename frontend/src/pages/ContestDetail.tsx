@@ -84,6 +84,7 @@ export default function ContestDetail() {
   const [loadError, setLoadError] = useState('');
   const [activeTab, setActiveTab] = useState<'overview' | 'problems' | 'rankings' | 'review' | 'announcements' | 'clarifications'>('overview');
   const overviewHtml = useMemo(
+    // eslint-disable-next-line react-hooks/preserve-manual-memoization -- heavy markdown render, cached on description change
     () => (contest?.description ? renderMarkdown(contest.description) : ''),
     [contest?.description],
   );
@@ -332,7 +333,7 @@ export default function ContestDetail() {
         });
         setRankingsPagination(data.pagination || null);
       }
-    } catch (e: any) {
+    } catch {
       // 排行榜请求失败 (如非成员/未开始) 不应覆盖整页，仅清空榜单
       setRankings([]);
       setRankingProblems([]);
@@ -386,10 +387,11 @@ export default function ContestDetail() {
     let cancelled = false;
     const isCancelled = () => cancelled;
     endedRefreshDone.current = false;
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    /* eslint-disable react-hooks/set-state-in-effect -- standard fetch-on-mount pattern; setState happens after async resolves, not synchronously */
     fetchContest(isCancelled);
     if (user) fetchClarifications(isCancelled);
     fetchAnnouncements(isCancelled);
+    /* eslint-enable react-hooks/set-state-in-effect */
     return () => { cancelled = true; };
   }, [fetchContest, id, isTeamMatch, fetchAnnouncements, fetchClarifications, user, ssr]);
 

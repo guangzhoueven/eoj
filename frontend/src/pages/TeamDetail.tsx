@@ -510,6 +510,7 @@ function ProblemsTab({ teamId, isMember }: { teamId: number; isMember: boolean }
   }, [teamId]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- standard mount-time fetch
     fetchProblems();
   }, [fetchProblems]);
 
@@ -1296,6 +1297,7 @@ function GroupsTab({ teamId, members, canManage, onRefresh }: { teamId: number; 
   }, [teamId]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- standard mount-time fetch
     fetchGroups();
   }, [fetchGroups]);
 

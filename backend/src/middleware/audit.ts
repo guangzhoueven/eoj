@@ -1,5 +1,5 @@
 import { Context, Next } from 'hono';
-import { AppType, AuditLogRow } from '../types';
+import { AppType } from '../types';
 import { hashPii } from '../utils/helpers';
 
 /**

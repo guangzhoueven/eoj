@@ -33,7 +33,7 @@ export default function Layout({ children }: { children: ReactNode }) {
   const [showShortcuts, setShowShortcuts] = useState(false);
   const [friendLinks, setFriendLinks] = useState<{ id: number; name: string; url: string; description: string; icon: string }[]>(ssrGlobal?.friendLinks ?? []);
   const [footerPages, setFooterPages] = useState<{ id: number; slug: string; title: string }[]>(ssrGlobal?.pages ?? []);
-  const isLuogu = config.site.theme === 'luogu';
+  const isClassic = config.site.theme === 'classic';
 
   // 页脚友情链接 + 自定义页面导航:SSR 命中时无需再请求
   useEffect(() => {
@@ -57,7 +57,7 @@ export default function Layout({ children }: { children: ReactNode }) {
     fetchSettings();
   }, [fetchSettings, ssrGlobal?.settings]);
 
-  // Poll unread messages (for luogu sidebar + default header)
+  // Poll unread messages (for classic sidebar + default header)
   // SSR 已注入首屏 unreadMessages;后续仍定时刷新以反映实时变化。
   useEffect(() => {
     if (!user) return;
@@ -104,7 +104,7 @@ export default function Layout({ children }: { children: ReactNode }) {
         onMenuClick={() => setSidebarOpen((v) => !v)}
         unreadMsg={displayUnreadMsg}
       />
-      {isLuogu ? (
+      {isClassic ? (
         <div className="layout-body">
           <Sidebar
             open={sidebarOpen}

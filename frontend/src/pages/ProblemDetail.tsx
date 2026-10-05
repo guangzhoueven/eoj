@@ -154,6 +154,7 @@ export default function ProblemDetail() {
     }
     ssrFirstRunRef.current = false;
     if (!problemKey) return;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- standard fetch-on-mount pattern; setState runs after async resolves
     setLoading(true);
     let cancelled = false;
 
@@ -172,7 +173,7 @@ export default function ProblemDetail() {
               setLoading(false);
               return;
             }
-          } catch (e) {
+          } catch {
             // ignore and let the problem endpoint return authoritative error
           }
 
@@ -214,15 +215,15 @@ export default function ProblemDetail() {
           try {
             const rel = await api.getRelatedProblems(slug);
             if (!cancelled) setRelatedProblems(rel.problems || []);
-          } catch {}
+          } catch { /* related problems optional */ }
           try {
             const langs = await api.getProblemLanguages(slug);
             if (!cancelled) setProblemLanguages(langs.languages || []);
-          } catch {}
+          } catch { /* languages optional */ }
           try {
             const tr = await api.getProblemTrend(slug);
             if (!cancelled) setTrend(tr.trend || []);
-          } catch {}
+          } catch { /* trend optional */ }
         }
       } catch (e: any) {
         if (cancelled) return;
@@ -395,6 +396,7 @@ export default function ProblemDetail() {
   useEffect(() => {
     if (activeTab !== 'notes' || !user || !problem?.id) return;
     let cancelled = false;
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- standard async-fetch pattern
     setNoteLoading(true);
     api.getNote(problem.id)
       .then((data: any) => {

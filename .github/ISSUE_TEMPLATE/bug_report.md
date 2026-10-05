@@ -41,7 +41,7 @@ assignees: ''
 ### 前端 / Frontend
 - **浏览器 / Browser**: [Chrome / Safari / Firefox / Edge]
 - **操作系统 / OS**: [Windows / macOS / Linux / iOS / Android]
-- **主题 / Theme**: [default / luogu / hydro]
+- **主题 / Theme**: [default / classic / flat]
 
 ### 后端 / Backend
 - **D1 数据库 / D1 Database**: [远程 / 本地 local]

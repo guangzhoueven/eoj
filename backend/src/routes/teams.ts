@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import { AppType } from '../types';
-import { authMiddleware, adminMiddleware, isAdmin } from '../middleware/auth';
+import { authMiddleware, isAdmin } from '../middleware/auth';
 import { escapeLikeWildcard } from '../utils/helpers';
 import { validateSlug } from '../utils/validator';
 import { fetchTestcases, saveTestcases, deleteTestcases } from '../utils/github-testcases';
@@ -955,7 +955,7 @@ teams.get('/:id/problem-sets/:setId', async (c) => {
   ).bind(setId).all();
 
   // 当前用户解决状态
-  let solvedIds: Set<number> = new Set();
+  const solvedIds: Set<number> = new Set();
   if (currentUser) {
     const problemIds = items.results.map((r: any) => r.problem_id);
     if (problemIds.length > 0) {

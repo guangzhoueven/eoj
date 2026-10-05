@@ -2,27 +2,6 @@ import * as bcrypt from 'bcryptjs';
 import { saveTestcases } from './utils/github-testcases';
 import { DEFAULT_AI_SYSTEM_PROMPT, DEFAULT_AI_SYSTEM_PROMPT_VERSION } from './ai-default-prompt';
 
-interface SeedTestcase {
-  input: string;
-  expected_output: string;
-  is_sample: boolean;
-  score: number;
-}
-
-interface SeedProblem {
-  title: string;
-  slug: string;
-  description: string;
-  input_format: string;
-  output_format: string;
-  time_limit: number;
-  memory_limit: number;
-  tags: string[];
-  difficulty: string;
-  is_public: number;
-  testcases: SeedTestcase[];
-}
-
 const SEED_PROBLEMS = [
   {
     title: 'A + B Problem',
@@ -130,7 +109,7 @@ export async function seedDatabase(db: D1Database, env: { GITHUB_TOKEN: string; 
 
     if (existing) continue;
 
-    const result = await db.prepare(
+    await db.prepare(
       `INSERT INTO problems (title, slug, description, input_format, output_format, time_limit, memory_limit, tags, difficulty, is_public)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )

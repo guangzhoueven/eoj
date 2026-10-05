@@ -37,7 +37,6 @@ const RATING_WEIGHT_P2 = 0.18;
 const RATING_WEIGHT_P3 = 0.16;
 const RATING_WEIGHT_P4 = 0.08;
 const RATING_WEIGHT_P5 = 0.07;
-const RATING_WEIGHT_PT = RATING_WEIGHT_P1 + RATING_WEIGHT_P2 + RATING_WEIGHT_P3 + RATING_WEIGHT_P4 + RATING_WEIGHT_P5; // 0.91
 
 // Logistic expected win probability: P(A beats B) = 1 / (1 + 10^((B-A)/400))
 function expectedWinProb(a: number, b: number): number {
@@ -127,13 +126,18 @@ export function computeContestRatingChanges(
     //   actualRank=1 (won) but expectedRank=5 → rankDiff = 4 → positive → rating should rise.
     //   (So positive rankDiff = good performance = rating rises.)
 
-    // For first-time participants (rating === 0), use weighted past or average
+    // For first-time participants (rating === 0), use weighted past or average.
+    // NOTE: `effectiveRating` is reserved for a future logistic-based delta
+    // formula; the current approximation uses rankDiff directly. Suppress the
+    // unused-var lint until the formula wires it through.
+    /* eslint-disable @typescript-eslint/no-unused-vars */
     let effectiveRating = p.rating;
     if (p.rating <= 0) {
       const past = pastRatingsMap.get(p.user_id) || [];
       const wp = weightedPastRating(past);
       effectiveRating = wp > 0 ? wp : avgRating;
     }
+    /* eslint-enable @typescript-eslint/no-unused-vars */
 
     // Translate rankDiff into a rating delta using logistic inverse.
     // Approximation: delta = rankDiff * scale where scale depends on contest size.

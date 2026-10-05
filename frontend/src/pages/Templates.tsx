@@ -4,6 +4,7 @@ import { useToastStore } from '../store/toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { Code2, Trash2, Save, Edit3 } from 'lucide-react';
 import { useSSRPage } from '../ssr/useSSRPage';
+import { t } from '../i18n';
 import '../pages/Admin.css';
 
 const LANGUAGES = [
@@ -22,7 +23,7 @@ interface TemplatesSSRData {
 }
 
 export default function Templates() {
-  useDocumentTitle('代码模板管理');
+  useDocumentTitle(t('templates.title'));
   const addToast = useToastStore((s) => s.addToast);
   const ssr = useSSRPage<TemplatesSSRData>('templates');
   const firstRunRef = useRef<boolean>(true);
@@ -55,19 +56,19 @@ export default function Templates() {
     if (!editLang || !editContent) return;
     try {
       await api.saveTemplate(editLang, editContent, editName);
-      addToast('success', '模板已保存');
+      addToast('success', t('templates.saved'));
       setEditLang(''); setEditContent(''); setEditName('');
       fetchTemplates();
-    } catch (e: any) { addToast('error', e.message || '保存失败'); }
+    } catch (e: any) { addToast('error', e.message || t('templates.saveFailed')); }
   };
 
   const handleDelete = async (lang: string) => {
-    if (!confirm('确定删除此模板？')) return;
+    if (!confirm(t('templates.deleteConfirm'))) return;
     try {
       await api.deleteTemplate(lang);
-      addToast('success', '模板已删除');
+      addToast('success', t('templates.deleted'));
       fetchTemplates();
-    } catch (e: any) { addToast('error', e.message || '删除失败'); }
+    } catch (e: any) { addToast('error', e.message || t('templates.deleteFailed')); }
   };
 
   const startEdit = async (lang: string) => {
@@ -78,50 +79,50 @@ export default function Templates() {
         setEditContent(data.template.content || '');
         setEditName(data.template.name || '');
       }
-    } catch { addToast('error', '获取模板失败'); }
+    } catch { addToast('error', t('templates.fetchFailed')); }
   };
 
   return (
     <div className="admin-page" style={{ maxWidth: 800, margin: '0 auto' }}>
       <h1 style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-        <Code2 size={24} /> 代码模板管理
+        <Code2 size={24} /> {t('templates.title')}
       </h1>
 
       <div className="admin-form" style={{ marginTop: 20 }}>
         <div className="form-group">
-          <label>语言</label>
+          <label>{t('templates.languageLabel')}</label>
           <select value={editLang} onChange={(e) => { setEditLang(e.target.value); if (e.target.value) startEdit(e.target.value); }}>
-            <option value="">选择语言...</option>
+            <option value="">{t('templates.languagePlaceholder')}</option>
             {LANGUAGES.map((l) => <option key={l.value} value={l.value}>{l.label}</option>)}
           </select>
         </div>
         {editLang && (
           <>
             <div className="form-group">
-              <label>模板名称（可选）</label>
-              <input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder="My Template" />
+              <label>{t('templates.nameLabel')}</label>
+              <input value={editName} onChange={(e) => setEditName(e.target.value)} placeholder={t('templates.namePlaceholder')} />
             </div>
             <div className="form-group">
-              <label>代码内容</label>
+              <label>{t('templates.contentLabel')}</label>
               <textarea rows={15} value={editContent} onChange={(e) => setEditContent(e.target.value)} style={{ fontFamily: 'monospace', fontSize: 13 }} />
             </div>
             <button className="btn btn-primary" onClick={handleSave} disabled={!editContent.trim()}>
-              <Save size={14} /> 保存模板
+              <Save size={14} /> {t('templates.save')}
             </button>
           </>
         )}
       </div>
 
-      <h3 style={{ marginTop: 30, marginBottom: 12 }}>已保存的模板</h3>
+      <h3 style={{ marginTop: 30, marginBottom: 12 }}>{t('templates.savedTitle')}</h3>
       {loading ? (
         <div className="loading-container"><div className="loading-spinner" /></div>
       ) : templates.length === 0 ? (
-        <p style={{ color: 'var(--text-muted)' }}>暂无模板，请先选择一个语言创建。</p>
+        <p style={{ color: 'var(--text-muted)' }}>{t('templates.empty')}</p>
       ) : (
         <div className="table-wrapper">
           <table className="admin-table">
             <thead>
-              <tr><th>语言</th><th>名称</th><th>更新时间</th><th>操作</th></tr>
+              <tr><th>{t('templates.columnLanguage')}</th><th>{t('templates.columnName')}</th><th>{t('templates.columnUpdatedAt')}</th><th>{t('templates.columnActions')}</th></tr>
             </thead>
             <tbody>
               {templates.map((tpl: any) => (
@@ -132,10 +133,10 @@ export default function Templates() {
                   <td>
                     <div style={{ display: 'flex', gap: 4 }}>
                       <button className="btn btn-secondary btn-sm" onClick={() => startEdit(tpl.language)}>
-                        <Edit3 size={12} /> 编辑
+                        <Edit3 size={12} /> {t('templates.edit')}
                       </button>
                       <button className="btn btn-danger btn-sm" onClick={() => handleDelete(tpl.language)}>
-                        <Trash2 size={12} /> 删除
+                        <Trash2 size={12} /> {t('templates.delete')}
                       </button>
                     </div>
                   </td>

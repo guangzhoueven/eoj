@@ -299,7 +299,7 @@ async function toolGetSubmissionDetail(env: any, user: any, submissionId: number
   let details: any[] = [];
   try {
     details = JSON.parse((row as any).details || '[]');
-  } catch {}
+  } catch { /* details not valid JSON */ }
   // Truncate source code to avoid excessive tokens
   const sourceCode = truncate((row as any).source_code || '', 8000);
   // Truncate each test case detail
@@ -636,7 +636,7 @@ async function extractResponse(
     if (Array.isArray(msg?.tool_calls)) {
       for (const tc of msg.tool_calls) {
         let args = {};
-        try { args = JSON.parse(tc.function?.arguments || '{}'); } catch {}
+        try { args = JSON.parse(tc.function?.arguments || '{}'); } catch { /* args not valid JSON */ }
         toolCalls.push({ id: tc.id, name: tc.function?.name || '', arguments: args });
       }
     }
@@ -892,7 +892,7 @@ ai.post('/chat', authMiddleware, createRateLimiter('aiChat', 10, 600_000), async
         controller.close();
       } catch (e: any) {
         console.error('AI chat stream error:', e);
-        try { send('error', { message: e.message || 'AI request failed' }); } catch {}
+        try { send('error', { message: e.message || 'AI request failed' }); } catch { /* client gone */ }
         controller.close();
       }
     },
@@ -1044,7 +1044,7 @@ ai.post('/complete', authMiddleware, createRateLimiter('aiComplete', 30, 600_000
 
     const { content: rawContent } = await extractResponse(provider, response);
     // Strip markdown code blocks if present
-    let content = rawContent.replace(/^```[\w]*\n?/, '').replace(/\n?```$/, '');
+    const content = rawContent.replace(/^```[\w]*\n?/, '').replace(/\n?```$/, '');
 
     return c.json({ success: true, data: { content, model, provider } });
   } catch (e: any) {

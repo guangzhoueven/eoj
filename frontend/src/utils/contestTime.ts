@@ -4,7 +4,7 @@
 // Handles DB time formats like "YYYY-MM-DD HH:MM:SS" (treated as UTC)
 export function parseContestTimeToMs(t: any): number {
   if (!t) return NaN;
-  let s = String(t);
+  const s = String(t);
   // If format is like "2024-01-01 12:00:00" (no timezone), explicitly treat as UTC
   if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(s)) {
     // Parse components and construct UTC timestamp

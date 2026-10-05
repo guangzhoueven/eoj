@@ -8,6 +8,7 @@ import rankings from './routes/rankings';
 import users from './routes/users';
 import internal from './routes/internal';
 import admin from './routes/admin';
+import permissionGroups from './routes/permissionGroups';
 import contests from './routes/contests';
 import tickets from './routes/tickets';
 import problemLists from './routes/problemLists';
@@ -184,7 +185,7 @@ api.get('/health', async (c) => {
   try {
     await c.env.DB.prepare('SELECT 1').first();
     return c.json({ success: true, data: { status: 'ok', timestamp: new Date().toISOString() } });
-  } catch (e) {
+  } catch {
     return c.json({ success: false, error: { message: 'Database unavailable' } }, 503);
   }
 });
@@ -195,6 +196,7 @@ api.route('/submissions', submissions);
 api.route('/rankings', rankings);
 api.route('/users', users);
 api.route('/admin', admin);
+api.route('/permission-groups', permissionGroups);
 api.route('/internal', internal);
 api.route('/contests', contests);
 api.route('/tickets', tickets);
@@ -236,12 +238,11 @@ app.get('/sitemap.xml', async (c) => {
     '/announcements', '/rankings', '/solutions/all', '/search',
   ];
 
-  const [problems, blogs, solutions, discussions, announcements] = await Promise.all([
+  const [problems, blogs, solutions, discussions] = await Promise.all([
     c.env.DB.prepare("SELECT slug FROM problems WHERE is_public = 1 ORDER BY id DESC LIMIT 500").all(),
     c.env.DB.prepare("SELECT id FROM blogs WHERE status = 'published' ORDER BY id DESC LIMIT 500").all(),
     c.env.DB.prepare("SELECT id FROM solutions WHERE review_status = 'approved' ORDER BY id DESC LIMIT 500").all(),
     c.env.DB.prepare("SELECT id FROM discussions ORDER BY id DESC LIMIT 500").all(),
-    c.env.DB.prepare("SELECT id FROM site_announcements WHERE status = 'published' ORDER BY id DESC LIMIT 200").all(),
   ]);
 
   const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
@@ -257,7 +258,7 @@ app.get('/sitemap.xml', async (c) => {
   for (const r of (blogs.results as any[])) lines.push(url(`/blogs/${r.id}`));
   for (const r of (solutions.results as any[])) lines.push(url(`/solutions/${r.id}`));
   for (const r of (discussions.results as any[])) lines.push(url(`/discussions/${r.id}`));
-  for (const r of (announcements.results as any[])) lines.push(url(`/announcements`));
+  lines.push(url('/announcements'));
   lines.push('</urlset>');
 
   c.header('Content-Type', 'application/xml; charset=utf-8');
@@ -350,11 +351,20 @@ app.all('*', async (c) => {
       return assetResponse;
     }
 
-    const indexResponse = await assets.fetch(
-      new Request(new URL('/index.html', request.url).toString(), request)
-    );
-    if (indexResponse.status !== 404) {
-      return indexResponse;
+    // Issue a fresh GET request for /index.html instead of reusing `request`:
+    // `new Request(url, request)` would inherit the original body stream,
+    // and for non-GET requests with a body (e.g. a PUT to an unknown path),
+    // trying to construct that derived Request disturbs the original stream.
+    // Subsequent middleware observing `next()` returning (audit/cache-control)
+    // would then crash with "ReadableStream is disturbed". Falling back to SPA
+    // shell only makes sense for navigation GETs anyway.
+    if (request.method === 'GET') {
+      const indexResponse = await assets.fetch(
+        new Request(new URL('/index.html', request.url).toString(), { method: 'GET' })
+      );
+      if (indexResponse.status !== 404) {
+        return indexResponse;
+      }
     }
   }
 
@@ -404,7 +414,7 @@ app.all('*', async (c) => {
 
       const contentType = filePath.endsWith('.html') ? 'text/html' : filePath.endsWith('.js') ? 'application/javascript' : filePath.endsWith('.css') ? 'text/css' : 'application/octet-stream';
       return new Response(new Uint8Array(data), { headers: { 'Content-Type': contentType } });
-    } catch (e) {
+    } catch {
       return c.text('Static assets not available', 404);
     }
   }

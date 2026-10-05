@@ -312,7 +312,7 @@ admin.post('/problems/import', authMiddleware, problemAdminMiddleware, async (c)
         await deleteSpjCode(c.env, slug, (existing as any).spj_language);
       }
     } else {
-      const result = await c.env.DB.prepare(`
+      await c.env.DB.prepare(`
         INSERT INTO problems (title, slug, description, input_format, output_format, time_limit, memory_limit, tags, difficulty, is_public, judge_type, spj_language)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).bind(
@@ -817,7 +817,7 @@ admin.get('/blogs', authMiddleware, adminMiddleware, async (c) => {
   const status = c.req.query('status') || '';
   const offset = (page - 1) * pageSize;
 
-  let whereClauses: string[] = [];
+  const whereClauses: string[] = [];
   const binds: any[] = [];
   if (search) {
     whereClauses.push("(b.title LIKE ? ESCAPE '\\' OR b.tags LIKE ? ESCAPE '\\')");
@@ -901,7 +901,7 @@ admin.get('/teams', authMiddleware, adminMiddleware, async (c) => {
   const search = c.req.query('search') || '';
   const offset = (page - 1) * pageSize;
 
-  let whereClauses: string[] = [];
+  const whereClauses: string[] = [];
   const binds: any[] = [];
   if (search) {
     whereClauses.push("(t.name LIKE ? ESCAPE '\\' OR t.slug LIKE ? ESCAPE '\\' OR t.description LIKE ? ESCAPE '\\')");

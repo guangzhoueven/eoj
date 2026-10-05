@@ -124,7 +124,7 @@
   border-left: 3px solid var(--warning);
 }
 
-[data-theme-style="hydro"] .discussion-card.pinned {
+[data-theme-style="flat"] .discussion-card.pinned {
   border-left: none;
   border-top: 2px solid var(--warning);
 }

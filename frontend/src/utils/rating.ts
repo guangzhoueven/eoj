@@ -1,4 +1,4 @@
-// Rating 到颜色的映射（类似洛谷/Codeforces）
+// Rating 到颜色的映射（参考主流 OJ / Codeforces 评级色板）
 export function getRatingColor(rating: number): string {
   if (rating < 800) return '#9d9d9d';      // 灰色 - 未评级
   if (rating < 1200) return '#fe2c55';     // 红
@@ -34,7 +34,7 @@ export function getRatingTier(rating: number): string {
   return 'Legendary Grandmaster';
 }
 
-// 用户名带Rating颜色（类似洛谷用户名颜色）
+// 用户名带Rating颜色（参考主流 OJ 用户名着色惯例）
 export function getUserRatingColor(rating: number): string {
   return getRatingColor(rating);
 }

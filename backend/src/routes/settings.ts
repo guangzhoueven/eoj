@@ -41,10 +41,6 @@ const WRITABLE_SETTINGS = new Set([
 
 // GET /settings - Get all public settings (no auth required)
 settings.get('/', async (c) => {
-  // Check if we have a cached response
-  const cacheKey = 'settings:all';
-  const cached = await c.env.DB.prepare('SELECT value FROM settings WHERE key = ?').bind(cacheKey).first().catch(() => null);
-  
   const results = await c.env.DB.prepare('SELECT key, value FROM settings').all();
   const data: Record<string, string> = {};
   for (const row of results.results as any[]) {

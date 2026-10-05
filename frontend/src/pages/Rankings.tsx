@@ -69,6 +69,7 @@ export default function Rankings() {
 
   // Reset to the first page when switching mode or time range.
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentional state sync on filter change
     setPage(1);
   }, [mode, timeRange]);
 

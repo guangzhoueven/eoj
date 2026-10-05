@@ -21,7 +21,7 @@
   background: rgba(255, 255, 255, 0.08);
 }
 
-[data-theme-style="hydro"] .bell-button:hover {
+[data-theme-style="flat"] .bell-button:hover {
   background: var(--bg-tertiary);
 }
 
@@ -59,7 +59,7 @@
   overflow: hidden;
 }
 
-[data-theme-style="hydro"] .bell-dropdown {
+[data-theme-style="flat"] .bell-dropdown {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: 0;
@@ -76,7 +76,7 @@
   font-size: 14px;
 }
 
-[data-theme-style="hydro"] .bell-dropdown-header {
+[data-theme-style="flat"] .bell-dropdown-header {
   border-bottom: 1px solid var(--border);
 }
 
@@ -103,7 +103,7 @@
   transition: background 0.15s;
 }
 
-[data-theme-style="hydro"] .bell-item {
+[data-theme-style="flat"] .bell-item {
   border-bottom: 1px solid var(--border-light);
 }
 
@@ -111,7 +111,7 @@
   background: rgba(255, 255, 255, 0.04);
 }
 
-[data-theme-style="hydro"] .bell-item:hover {
+[data-theme-style="flat"] .bell-item:hover {
   background: var(--bg-tertiary);
 }
 
@@ -119,7 +119,7 @@
   background: rgba(99, 102, 241, 0.06);
 }
 
-[data-theme-style="hydro"] .bell-item.unread {
+[data-theme-style="flat"] .bell-item.unread {
   background: var(--accent-light);
 }
 
@@ -169,7 +169,7 @@
   text-align: center;
 }
 
-[data-theme-style="hydro"] .bell-dropdown-footer {
+[data-theme-style="flat"] .bell-dropdown-footer {
   border-top: 1px solid var(--border);
 }
 

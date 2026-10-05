@@ -27,7 +27,7 @@ if (typeof g.setImmediate !== 'function') {
     }
     return 0;
   };
-  g.clearImmediate = g.clearImmediate || ((id: number) => {});
+  g.clearImmediate = g.clearImmediate || (() => {});
 }
 
 // SSR 渲染器由前端构建产物提供(esm 模块,由 Wrangler 在打包时引入)

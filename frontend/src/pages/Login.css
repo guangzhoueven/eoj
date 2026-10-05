@@ -189,12 +189,12 @@
   font-size: 14px;
 }
 
-/* ── Luogu theme: login page ── */
-[data-theme-style="luogu"] .login-page {
+/* ── Classic theme: login page ── */
+[data-theme-style="classic"] .login-page {
   background: var(--bg-primary);
 }
 
-[data-theme-style="luogu"] .login-card {
+[data-theme-style="classic"] .login-card {
   background: var(--bg-card);
   border: 1px solid var(--border);
   border-radius: var(--radius);
@@ -204,12 +204,12 @@
   padding: 32px 28px;
 }
 
-[data-theme-style="luogu"] .login-header h1 {
+[data-theme-style="classic"] .login-header h1 {
   font-size: 20px;
   font-weight: 500;
 }
 
-[data-theme-style="luogu"] .btn-github {
+[data-theme-style="classic"] .btn-github {
   background: #fff;
   color: #333;
   border: 1px solid var(--border);
@@ -219,25 +219,25 @@
   padding: 10px 20px;
 }
 
-[data-theme-style="luogu"] .btn-github:hover {
+[data-theme-style="classic"] .btn-github:hover {
   background: #f6f8fa;
   border-color: #d0d7de;
 }
 
-[data-theme-style="luogu"] .auth-form input {
+[data-theme-style="classic"] .auth-form input {
   background: #fff;
   border-color: var(--border);
   border-radius: 2px;
   padding: 8px 12px;
 }
 
-[data-theme-style="luogu"] .auth-form input:focus {
+[data-theme-style="classic"] .auth-form input:focus {
   border-color: var(--accent);
   box-shadow: none;
 }
 
-[data-theme-style="luogu"][data-theme="dark"] .auth-form input,
-[data-theme-style="luogu"][data-theme="dark"] .btn-github {
+[data-theme-style="classic"][data-theme="dark"] .auth-form input,
+[data-theme-style="classic"][data-theme="dark"] .btn-github {
   background: var(--bg-tertiary);
   color: var(--text-primary);
 }

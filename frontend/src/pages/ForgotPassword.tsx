@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { api } from '../api/client';
 import { Mail, ArrowLeft, CheckCircle, Loader2 } from 'lucide-react';
+import { t } from '../i18n';
 import './Login.css';
 
 export default function ForgotPassword() {
@@ -14,7 +15,7 @@ export default function ForgotPassword() {
     e.preventDefault();
     setError(null);
     if (!email.trim()) {
-      setError('请输入邮箱地址');
+      setError(t('passwordReset.emailRequired'));
       return;
     }
     setLoading(true);
@@ -22,7 +23,7 @@ export default function ForgotPassword() {
       await api.forgotPassword(email.trim());
       setSent(true);
     } catch (e: any) {
-      setError(e.message || '发送失败，请稍后重试');
+      setError(e.message || t('passwordReset.sendFailed'));
     } finally {
       setLoading(false);
     }
@@ -34,17 +35,17 @@ export default function ForgotPassword() {
         <div className="login-card">
           <div className="login-header">
             <CheckCircle size={48} className="login-success-icon" />
-            <h1>重置邮件已发送</h1>
+            <h1>{t('passwordReset.sentTitle')}</h1>
           </div>
           <p className="login-description">
-            如果该邮箱已注册，您将收到一封包含密码重置链接的邮件。
+            {t('passwordReset.sentHint')}
             <br />
-            链接有效期为 1 小时。
+            {t('passwordReset.linkExpiry')}
           </p>
           <div className="login-actions" style={{ marginTop: 20 }}>
             <Link to="/login" className="btn btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: 8 }}>
               <ArrowLeft size={16} />
-              返回登录
+              {t('passwordReset.backToLogin')}
             </Link>
           </div>
         </div>
@@ -57,15 +58,15 @@ export default function ForgotPassword() {
       <div className="login-card">
         <div className="login-header">
           <Mail size={32} />
-          <h1>忘记密码</h1>
+          <h1>{t('passwordReset.forgotTitle')}</h1>
         </div>
-        <p className="login-description">输入注册时使用的邮箱地址，我们将发送重置链接。</p>
+        <p className="login-description">{t('passwordReset.forgotHint')}</p>
 
         {error && <div className="login-error">{error}</div>}
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
-            <label>邮箱地址</label>
+            <label>{t('passwordReset.emailLabel')}</label>
             <input
               type="email"
               className="form-input"
@@ -78,14 +79,14 @@ export default function ForgotPassword() {
           </div>
           <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
             {loading ? <Loader2 size={16} className="spin" /> : <Mail size={16} />}
-            {loading ? '发送中...' : '发送重置链接'}
+            {loading ? t('passwordReset.sending') : t('passwordReset.send')}
           </button>
         </form>
 
         <div className="login-footer">
           <Link to="/login" className="login-footer-link">
             <ArrowLeft size={14} />
-            返回登录
+            {t('passwordReset.backToLogin')}
           </Link>
         </div>
       </div>

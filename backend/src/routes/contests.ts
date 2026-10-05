@@ -13,8 +13,6 @@ const contestCreateLimiter = createRateLimiter('contest_create', 10, 60_000);
 const contestRegisterLimiter = createRateLimiter('contest_register', 5, 60_000);
 const virtualRegisterLimiter = createRateLimiter('virtual_register', 5, 60_000);
 
-const VALID_SCORING_TYPES = ['oi', 'icpc', 'ioi'];
-
 function normalizeScoringType(s: any): 'oi' | 'icpc' | 'ioi' {
   if (s === 'oi') return 'oi';
   if (s === 'ioi') return 'ioi';
@@ -622,7 +620,6 @@ contests.get('/:id/problems', authMiddleware, async (c) => {
   // 按当前时间动态判定,避免 status 字段过期导致拦截失效
   const contestStatus = effectiveContestStatus(contest);
   const isRunning = contestStatus === 'running';
-  const isEnded = contestStatus === 'ended';
 
   // Only participants (or admin) can see problems during running contest
   if (isRunning && !isAdmin && !isParticipant) {
@@ -965,7 +962,7 @@ contests.get('/:id/rankings/export', optionalAuthMiddleware, async (c) => {
   ).bind(id).all();
 
   // 封榜与时间窗口逻辑统一走 computeFreezeWindow,与 rankings 端点一致
-  const { boardFrozen, rankingEndIso } = computeFreezeWindow(contest as any);
+  const { rankingEndIso } = computeFreezeWindow(contest as any);
 
   const userIds = participants.results.map((p: any) => p.user_id);
   const problemIds = contestProblems.results.map((p: any) => p.problem_id);
@@ -1094,8 +1091,6 @@ contests.get('/:id/rankings/image', optionalAuthMiddleware, async (c) => {
   const height = titleH + headerH + shown.length * rowH + padding * 2;
 
   let rowsXml = '';
-  const cellStyle = (x: number, w: number, bold = false, color = '#333') =>
-    `<text x="${x}" y="${0}" text-anchor="middle" font-family="sans-serif" font-size="14" font-weight="${bold ? 600 : 400}" fill="${color}">`;
   shown.forEach((r: any, idx: number) => {
     const y = titleH + headerH + idx * rowH + rowH / 2 + 5;
     const medal = r.rank === 1 ? '#f5a623' : r.rank === 2 ? '#8a8f98' : r.rank === 3 ? '#c08a4e' : '#333';

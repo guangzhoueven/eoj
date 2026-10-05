@@ -11,7 +11,7 @@ import { useAuthStore } from './store/auth';
 import { useSettingsStore } from './store/settings';
 import { useThemeStore } from './store/theme';
 import { api } from './api/client';
-import { applyThemeAccent, applyCustomCss } from './utils/theme';
+import { applyThemeAccent, applyCustomCss, applyUserTheme } from './utils/theme';
 import { getSSRGlobal } from './ssr/hydrate';
 import './styles/global.css';
 import './styles/components.css';
@@ -33,6 +33,7 @@ const AdminCreateProblem = lazy(() => import('./pages/admin/AdminCreateProblem')
 const AdminProblems = lazy(() => import('./pages/admin/AdminProblems'));
 const AdminTestcases = lazy(() => import('./pages/admin/AdminTestcases'));
 const AdminUsers = lazy(() => import('./pages/admin/AdminUsers'));
+const AdminPermissionGroups = lazy(() => import('./pages/admin/AdminPermissionGroups'));
 const AdminContests = lazy(() => import('./pages/admin/AdminContests'));
 const AdminTickets = lazy(() => import('./pages/admin/AdminTickets'));
 const AdminLists = lazy(() => import('./pages/admin/AdminLists'));
@@ -125,20 +126,31 @@ function App({ ssrLocation }: { ssrLocation?: string } = {}) {
     applyTheme();
   }, []);
 
-  // 用户级主题:登录后从 user_settings 恢复用户保存的深浅主题与自定义 CSS
+  // 用户级主题:登录后从 user_settings 恢复用户保存的深浅主题、自定义 CSS 与主题外观
+  // (优先级高于管理端 applyThemeAccent —— 用户自定义会覆盖站点级 accent)
   useEffect(() => {
-    if (!user) return;
+    if (!user) {
+      // 退出登录时清理用户级主题覆盖,回到管理端 / 默认
+      applyUserTheme({});
+      return;
+    }
     const applyServerTheme = async () => {
       try {
         // SSR 已经注入 userSettings 时直接用,避免一次额外请求
         const ssrUserSettings = getSSRGlobal()?.userSettings;
         const data = ssrUserSettings
-          ? { settings: { theme: ssrUserSettings.theme, custom_css: ssrUserSettings.custom_css } as Record<string, string> }
+          ? { settings: { theme: ssrUserSettings.theme, custom_css: ssrUserSettings.custom_css, theme_accent: ssrUserSettings.theme_accent, theme_radius: ssrUserSettings.theme_radius, theme_font: ssrUserSettings.theme_font } as Record<string, string> }
           : await api.getUserSettings();
         const t = data.settings?.theme;
         if (t === 'dark' || t === 'light') {
           useThemeStore.getState().applyServerTheme(t);
         }
+        // 用户主题外观(accent / radius / font)——覆盖管理端 accent
+        applyUserTheme({
+          accent: data.settings?.theme_accent,
+          radius: data.settings?.theme_radius,
+          font: data.settings?.theme_font,
+        });
         // 用户自定义主题 CSS
         const css = data.settings?.custom_css;
         if (typeof css === 'string') {
@@ -182,6 +194,7 @@ function App({ ssrLocation }: { ssrLocation?: string } = {}) {
               <Route path="reports" element={<RequirePermission requirePermissions={['problem_admin']}><AdminReports /></RequirePermission>} />
               {/* 用户管理:仅 admin/super_admin(沿用 hasAllPermissions,与菜单一致) */}
               <Route path="users" element={<RequirePermission><AdminUsers /></RequirePermission>} />
+              <Route path="permission-groups" element={<RequirePermission><AdminPermissionGroups /></RequirePermission>} />
               {/* 比赛:contest_admin */}
               <Route path="contests" element={<RequirePermission requirePermissions={['contest_admin']}><AdminContests /></RequirePermission>} />
               <Route path="plagiarism" element={<RequirePermission requirePermissions={['contest_admin']}><AdminPlagiarism /></RequirePermission>} />

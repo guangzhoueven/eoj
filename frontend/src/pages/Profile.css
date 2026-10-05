@@ -731,8 +731,8 @@
   right: 0;
   height: 3px;
   border-radius: var(--radius) var(--radius) 0 0;
-  background: linear-gradient(90deg, var(--primary), transparent);
-  opacity: 0.6;
+  background: var(--primary);
+  opacity: 0.55;
 }
 
 .stat-card:hover .stat-icon {
@@ -839,7 +839,7 @@
   left: 0;
   right: 0;
   height: 6px;
-  background: linear-gradient(90deg, var(--primary), var(--accent) 50%, var(--primary));
+  background: var(--accent);
   opacity: 0.7;
 }
 

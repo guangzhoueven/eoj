@@ -552,6 +552,18 @@ export default function AdminTestcases() {
 
   return (
     <div className="admin-form team-testcase-panel">
+      <div className="admin-page-header">
+        <div className="admin-page-header-left">
+          <h1 className="admin-page-title">
+            <FileCheck size={22} />
+            {t('admin.addTestcases')}
+          </h1>
+          <span className="admin-page-subtitle">
+            选择题目后,上传或编辑测试数据、配置 Special Judge、维护输入输出格式说明。
+          </span>
+        </div>
+      </div>
+
       <div className="form-group">
         <label>{t('admin.selectProblem')}</label>
         <div className="testcase-problem-select">
@@ -764,7 +776,7 @@ export default function AdminTestcases() {
 
           {/* ── SPJ 管理面板 ── */}
           <div className="testcase-spj-panel" style={{ marginTop: 16 }}>
-            <h3><FileCode size={16} style={{ color: 'var(--primary)' }} /> {t('admin.specialJudge')}</h3>
+            <h3><FileCode size={16} style={{ color: 'var(--accent)' }} /> {t('admin.specialJudge')}</h3>
             {spjLoading ? (
               <div className="tab-loading">
                 <div className="loading-spinner" />
@@ -795,7 +807,6 @@ export default function AdminTestcases() {
                     onChange={(e) => setSpjCode(e.target.value)}
                     placeholder={t('admin.spjPlaceholder')}
                     disabled={spjSaving}
-                    style={{ fontFamily: 'monospace', fontSize: '13px' }}
                   />
                 </div>
                 <div className="form-actions">

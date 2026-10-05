@@ -8,6 +8,7 @@ import {
   Ticket, BookOpen, Megaphone, Settings, Bot, FolderOpen,
   Database, Menu, X, FileSearch, ShieldBan, GraduationCap, ShieldAlert,
   FileCheck, Flag, PenSquare, Mail, Newspaper, Link2, Tag as TagIcon,
+  ShieldCheck,
 } from 'lucide-react';
 import '../Admin.css';
 
@@ -25,6 +26,7 @@ const sidebarLinks: SidebarLink[] = [
   { to: 'testcases', icon: <ClipboardList size={18} />, label: t('admin.addTestcases'), permission: 'problem_admin' },
   { to: 'tags', icon: <TagIcon size={18} />, label: t('admin.tagsManagement'), permission: 'problem_admin' },
   { to: 'users', icon: <Users size={18} />, label: t('admin.userManagement'), permission: 'all' },
+  { to: 'permission-groups', icon: <ShieldCheck size={18} />, label: '权限组', permission: 'all' },
   { to: 'contests', icon: <Swords size={18} />, label: t('admin.contestManagement'), permission: 'contest_admin' },
   { to: 'tickets', icon: <Ticket size={18} />, label: t('admin.ticketManagement'), permission: 'ticket_admin' },
   { to: 'lists', icon: <BookOpen size={18} />, label: t('admin.listManagement'), permission: 'list_admin' },
@@ -63,8 +65,8 @@ export default function AdminLayout() {
 
   const canSeeLink = (link: SidebarLink) => {
     if (link.permission === 'all') {
-      // Dashboard always visible to any admin; users only to hasAllPermissions
-      if (link.to === 'users') return perms.hasAllPermissions;
+      // Dashboard always visible to any admin; users/permission-groups only to hasAllPermissions
+      if (link.to === 'users' || link.to === 'permission-groups') return perms.hasAllPermissions;
       return true;
     }
     // SQL 编辑器属于高风险功能(可直接读写 D1),仅超级管理员本人可见,

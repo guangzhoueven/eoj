@@ -1,5 +1,5 @@
 import { Context, Next } from 'hono';
-import { AppType, CountResult } from '../types';
+import { AppType } from '../types';
 
 export async function rateLimitMiddleware(c: Context<AppType>, next: Next) {
   const user = c.get('user');

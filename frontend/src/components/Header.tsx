@@ -43,18 +43,18 @@ export default function Header({ onMenuClick, unreadMsg = 0 }: HeaderProps) {
   const navigate = useNavigate();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const isLuogu = config.site.theme === 'luogu';
-  const isHydro = config.site.theme === 'hydro';
-  const headerStyleClass = isHydro ? 'header-hydro' : 'header-default';
+  const isClassic = config.site.theme === 'classic';
+  const isFlat = config.site.theme === 'flat';
+  const headerStyleClass = isFlat ? 'header-flat' : 'header-default';
 
   const showMyFiles = user && (getImageUploadEnabled() || getUploadEnabled() || perms.canManageUploads);
   const getAIEnabled = useSettingsStore((s) => s.getAIEnabled);
   const getAIChatEnabled = useSettingsStore((s) => s.getAIChatEnabled);
   const showAI = user && (getAIEnabled() || perms.hasAllPermissions) && getAIChatEnabled();
 
-  // Poll unread messages count (only for default theme, luogu theme gets it from Layout)
+  // Poll unread messages count (only for default theme, classic theme gets it from Layout)
   const [localUnread, setLocalUnread] = useState(0);
-  const effectiveUnread = isLuogu ? (unreadMsg || 0) : localUnread;
+  const effectiveUnread = isClassic ? (unreadMsg || 0) : localUnread;
 
   // ── Search suggestions ──
   const [searchQuery, setSearchQuery] = useState('');
@@ -126,7 +126,7 @@ export default function Header({ onMenuClick, unreadMsg = 0 }: HeaderProps) {
   const pollTimerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
-    if (!user || isLuogu) return;
+    if (!user || isClassic) return;
 
     const stopPolling = () => {
       if (pollTimerRef.current) {
@@ -193,7 +193,7 @@ export default function Header({ onMenuClick, unreadMsg = 0 }: HeaderProps) {
       stopPolling();
       if (sseRef.current) { sseRef.current.close(); sseRef.current = null; }
     };
-  }, [user, isLuogu]);
+  }, [user, isClassic]);
 
   const handleLogout = () => {
     logout();
@@ -201,11 +201,11 @@ export default function Header({ onMenuClick, unreadMsg = 0 }: HeaderProps) {
   };
 
   /* ═══════════════════════════════════════════════════
-     Luogu-style header: simplified, hamburger + sidebar
+     Classic-style header: simplified, hamburger + sidebar
      ═══════════════════════════════════════════════════ */
-  if (isLuogu) {
+  if (isClassic) {
     return (
-      <header className="header header-luogu">
+      <header className="header header-classic">
         <div className="header-inner">
           <button
             className="header-menu-btn"

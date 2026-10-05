@@ -36,8 +36,24 @@ export async function authMiddleware(c: Context<AppType>, next: Next) {
       const parsed = row.permissions ? JSON.parse(row.permissions) : [];
       if (Array.isArray(parsed)) dbPermissions = parsed;
     } catch { /* 保留 token 内的 permissions */ }
+    // 合并用户所属权限组的 permissions(并集)
+    try {
+      const gr = await c.env.DB.prepare(
+        `SELECT g.permissions FROM user_permission_groups ug
+         JOIN permission_groups g ON g.id = ug.group_id
+         WHERE ug.user_id = ?`
+      ).bind(payload.userId).all();
+      const groupPerms = new Set<string>(dbPermissions);
+      for (const r of gr.results as any[]) {
+        try {
+          const p = r?.permissions ? JSON.parse(r.permissions) : [];
+          if (Array.isArray(p)) p.forEach((x: string) => groupPerms.add(x));
+        } catch { /* ignore malformed group */ }
+      }
+      dbPermissions = Array.from(groupPerms);
+    } catch { /* 组表不存在/查询失败:退化为仅个人权限,保持兼容 */ }
     payload.permissions = dbPermissions;
-  } catch (e) {
+  } catch {
     // DB 异常时拒绝请求,防止通过制造 DB 故障绕过封禁
     return c.json({ success: false, error: { message: 'Authentication service unavailable', code: 'AUTH_UNAVAILABLE' } }, 503);
   }
@@ -67,6 +83,22 @@ export async function optionalAuthMiddleware(c: Context<AppType>, next: Next) {
           try {
             const parsed = row.permissions ? JSON.parse(row.permissions) : [];
             if (Array.isArray(parsed)) dbPermissions = parsed;
+          } catch { /* ignore */ }
+          // 合并用户所属权限组的 permissions(并集)
+          try {
+            const gr = await c.env.DB.prepare(
+              `SELECT g.permissions FROM user_permission_groups ug
+               JOIN permission_groups g ON g.id = ug.group_id
+               WHERE ug.user_id = ?`
+            ).bind(payload.userId).all();
+            const groupPerms = new Set<string>(dbPermissions);
+            for (const r of gr.results as any[]) {
+              try {
+                const p = r?.permissions ? JSON.parse(r.permissions) : [];
+                if (Array.isArray(p)) p.forEach((x: string) => groupPerms.add(x));
+              } catch { /* ignore */ }
+            }
+            dbPermissions = Array.from(groupPerms);
           } catch { /* ignore */ }
           payload.permissions = dbPermissions;
           c.set('user', payload);

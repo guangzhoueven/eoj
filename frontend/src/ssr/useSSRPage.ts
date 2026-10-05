@@ -23,6 +23,7 @@ export function useSSRPage<T = unknown>(pageKey: string): T | null {
   if (ref.current === undefined) {
     ref.current = consumeSSRPageData(pageKey) as T | null;
   }
+  // eslint-disable-next-line react-hooks/refs -- intentional: SSR data must be read during render to avoid hydration mismatch
   return ref.current;
 }
 

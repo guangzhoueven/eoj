@@ -488,7 +488,7 @@ auth.post('/register', captchaMiddleware('register'), createRateLimiter('registe
     } else if (typeof c.env.REGISTRATION_OPEN !== 'undefined') {
       registrationOpen = String(c.env.REGISTRATION_OPEN) === 'true';
     }
-  } catch (e) {
+  } catch {
     // ignore and fallback to env
     if (typeof c.env.REGISTRATION_OPEN !== 'undefined') {
       registrationOpen = String(c.env.REGISTRATION_OPEN) === 'true';

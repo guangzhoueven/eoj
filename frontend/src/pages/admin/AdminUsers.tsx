@@ -6,7 +6,7 @@ import { usePermissions } from '../../hooks/usePermissions';
 import { useSSRPage } from '../../ssr/useSSRPage';
 import { t } from '../../i18n';
 import {
-  Search, Shield, User, ChevronLeft, ChevronRight, CheckSquare, Square,
+  Search, Shield, User, ChevronLeft, ChevronRight, CheckSquare, Square, ShieldCheck, Users as UsersIcon,
 } from 'lucide-react';
 import '../Admin.css';
 
@@ -31,6 +31,12 @@ export default function AdminUsers() {
 
   const [editingPermissions, setEditingPermissions] = useState<number | null>(null);
   const [userPermissions, setUserPermissions] = useState<string[]>([]);
+
+  // ── 权限组分配(super admin) ──
+  const [allGroups, setAllGroups] = useState<any[]>([]);
+  const [userGroups, setUserGroups] = useState<Record<number, any[]>>({});
+  const [editingGroupsFor, setEditingGroupsFor] = useState<number | null>(null);
+  const [draftGroupIds, setDraftGroupIds] = useState<number[]>([]);
 
   const fetchUserList = useCallback(async () => {
     try {
@@ -101,6 +107,63 @@ export default function AdminUsers() {
     );
   };
 
+  // ── 权限组:加载组列表 + 每个用户的组 ──
+  const fetchGroupsAndMembership = useCallback(async () => {
+    if (!perms.isSuperAdmin) return;
+    try {
+      const groupsData = await api.getPermissionGroups();
+      setAllGroups(groupsData.groups);
+      // 并发拉取当前页每个用户的组(数量可控:pageSize<=20)
+      const entries = await Promise.all(
+        userList.map(async (u: any) => {
+          try {
+            const r = await api.getUserGroups(u.id);
+            return [u.id, r.groups] as const;
+          } catch {
+            return [u.id, [] as any[]] as const;
+          }
+        })
+      );
+      setUserGroups(Object.fromEntries(entries));
+    } catch (e) {
+      console.error('Failed to load permission groups:', e);
+    }
+  }, [perms.isSuperAdmin, userList]);
+
+  useEffect(() => {
+    // 首屏由 SSR 注入,但仍需补全组信息
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- standard mount-time fetch
+    fetchGroupsAndMembership();
+  }, [fetchGroupsAndMembership]);
+
+  const startEditGroups = async (userId: number) => {
+    setEditingGroupsFor(userId);
+    const current = userGroups[userId]?.map((g) => g.id) ?? [];
+    setDraftGroupIds(current);
+    if (allGroups.length === 0) {
+      try {
+        const data = await api.getPermissionGroups();
+        setAllGroups(data.groups);
+      } catch { /* ignore */ }
+    }
+  };
+
+  const toggleDraftGroup = (gid: number) => {
+    setDraftGroupIds((prev) => prev.includes(gid) ? prev.filter((x) => x !== gid) : [...prev, gid]);
+  };
+
+  const saveGroups = async (userId: number) => {
+    try {
+      await api.updateUserGroups(userId, draftGroupIds);
+      addToast('success', '已更新用户权限组');
+      setEditingGroupsFor(null);
+      const r = await api.getUserGroups(userId);
+      setUserGroups((prev) => ({ ...prev, [userId]: r.groups }));
+    } catch (e: any) {
+      addToast('error', e.message || t('common.error'));
+    }
+  };
+
   const handleToggleBan = async (userId: number, currentlyBanned: boolean) => {
     try {
       await api.setUserBanned(userId, !currentlyBanned);
@@ -161,7 +224,17 @@ export default function AdminUsers() {
 
   return (
     <div className="admin-form">
-      <h2>{t('admin.userManagement')}</h2>
+      <div className="admin-page-header">
+        <div className="admin-page-header-left">
+          <h1 className="admin-page-title">
+            <UsersIcon size={22} />
+            {t('admin.userManagement')}
+          </h1>
+          <span className="admin-page-subtitle">
+            管理用户角色、个人权限、所属权限组与封禁状态。支持批量操作。
+          </span>
+        </div>
+      </div>
       <div className="user-search">
         <Search size={16} />
         <input
@@ -299,6 +372,43 @@ export default function AdminUsers() {
                     }}>
                       {t('admin.editPermissions')}
                     </button>
+                  </div>
+                )}
+              </div>
+            )}
+            {/* 权限组(super admin 才能分配;超级管理员 id=1 不需要分配) */}
+            {u.id !== 1 && perms.isSuperAdmin && (
+              <div className="user-permissions" style={{ borderTop: '1px dashed var(--border)', marginTop: 8, paddingTop: 8 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 6, fontSize: 12, color: 'var(--text-muted)' }}>
+                  <ShieldCheck size={12} /> 权限组
+                </div>
+                {editingGroupsFor === u.id ? (
+                  <div className="permission-editor" style={{ display: 'flex', flexWrap: 'wrap', gap: 10, alignItems: 'center' }}>
+                    {allGroups.length === 0 && <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>加载中...</span>}
+                    {allGroups.map((g) => (
+                      <label key={g.id} className="permission-checkbox" style={{ display: 'flex', alignItems: 'center', gap: 4, cursor: 'pointer' }}>
+                        <input
+                          type="checkbox"
+                          checked={draftGroupIds.includes(g.id)}
+                          onChange={() => toggleDraftGroup(g.id)}
+                        />
+                        <span className="perm-label" style={{ color: g.color || undefined }}>{g.name}</span>
+                      </label>
+                    ))}
+                    <button className="btn btn-primary btn-xs" onClick={() => saveGroups(u.id)}>{t('admin.save')}</button>
+                    <button className="btn btn-secondary btn-xs" onClick={() => setEditingGroupsFor(null)}>{t('common.cancel')}</button>
+                  </div>
+                ) : (
+                  <div className="permission-tags">
+                    {(userGroups[u.id] || []).length > 0
+                      ? userGroups[u.id].map((g) => (
+                        <span key={g.id} className="perm-tag" style={{ color: g.color || undefined }}>
+                          {g.name}
+                        </span>
+                      ))
+                      : <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>未分配</span>
+                    }
+                    <button className="btn btn-secondary btn-xs" onClick={() => startEditGroups(u.id)}>分配组</button>
                   </div>
                 )}
               </div>

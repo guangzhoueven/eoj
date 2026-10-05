@@ -6,7 +6,6 @@ import { fetchWithTimeout } from '../utils/fetch-timeout';
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
 const MAX_IMAGE_SIZE = 5 * 1024 * 1024; // 5MB
 const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
-const SAFE_FILENAME_RE = /[^a-zA-Z0-9._-]/g;
 
 // 通用文件上传白名单:扩展名 -> 允许的 MIME 类型(以服务端映射为准,不信任客户端声明)
 const ALLOWED_FILE_EXTENSIONS: Record<string, string[]> = {
@@ -50,27 +49,6 @@ function verifyImageSignature(buffer: ArrayBuffer): boolean {
   if (bytes[0] === 0x52 && bytes[1] === 0x49 && bytes[2] === 0x46 && bytes[3] === 0x46
     && bytes[8] === 0x57 && bytes[9] === 0x45 && bytes[10] === 0x42 && bytes[11] === 0x50) return true;
   return false;
-}
-
-/**
- * Sanitize a filename to prevent path traversal and header injection.
- * Keeps only safe characters and limits length.
- */
-function sanitizeFilename(name: string): string {
-  // Remove path separators and control characters
-  let safe = name.replace(/[/\\:*?"<>|]/g, '_').replace(/\0/g, '');
-  // Remove any remaining unsafe characters
-  safe = safe.replace(SAFE_FILENAME_RE, '_');
-  // Limit length to prevent abuse
-  if (safe.length > 200) {
-    const ext = safe.lastIndexOf('.');
-    if (ext > 0) {
-      safe = safe.substring(0, 100) + safe.substring(ext);
-    } else {
-      safe = safe.substring(0, 200);
-    }
-  }
-  return safe || 'unnamed';
 }
 
 /**

@@ -76,6 +76,7 @@ export default function Login() {
   // 客户端 mount 后再设置真实 origin 触发一次重渲染,得到正确的 OAuth 回跳链接。
   const [origin, setOrigin] = useState('');
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- intentionally sync to avoid hydration mismatch
     setOrigin(window.location.origin);
   }, []);
 

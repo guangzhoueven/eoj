@@ -16,7 +16,13 @@ export interface SSRGlobalData {
     created_at?: string;
   } | null;
   unreadMessages?: number;
-  userSettings?: { theme?: 'dark' | 'light'; custom_css?: string };
+  userSettings?: {
+    theme?: 'dark' | 'light';
+    custom_css?: string;
+    theme_accent?: string;
+    theme_radius?: string;
+    theme_font?: string;
+  };
   theme?: 'dark' | 'light';
   language?: 'zh' | 'en';
   serverTime?: number;

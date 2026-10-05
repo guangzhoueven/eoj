@@ -151,7 +151,7 @@
   align-items: center;
 }
 
-/* Luogu-style difficulty badge backgrounds */
+/* Classic-style difficulty badge backgrounds */
 .difficulty-badge[data-difficulty="暂无难度"] { color: var(--diff-none); border-color: var(--diff-none); background: color-mix(in srgb, var(--diff-none) 12%, transparent); }
 .difficulty-badge[data-difficulty="入门"]     { color: var(--diff-easy); border-color: var(--diff-easy); background: color-mix(in srgb, var(--diff-easy) 12%, transparent); }
 .difficulty-badge[data-difficulty="普及-"]    { color: var(--diff-easy-mid); border-color: var(--diff-easy-mid); background: color-mix(in srgb, var(--diff-easy-mid) 12%, transparent); }

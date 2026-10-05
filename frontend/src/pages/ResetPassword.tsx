@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useSearchParams, Link, useNavigate } from 'react-router-dom';
 import { api } from '../api/client';
 import { Lock, CheckCircle, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
+import { t } from '../i18n';
 import './Login.css';
 
 export default function ResetPassword() {
@@ -21,12 +22,12 @@ export default function ResetPassword() {
         <div className="login-card">
           <div className="login-header">
             <AlertCircle size={32} />
-            <h1>无效的链接</h1>
+            <h1>{t('passwordReset.invalidToken')}</h1>
           </div>
-          <p className="login-description">密码重置链接无效，请重新申请。</p>
+          <p className="login-description">{t('passwordReset.invalidHint')}</p>
           <div className="login-actions" style={{ marginTop: 20 }}>
             <Link to="/forgot-password" className="btn btn-primary">
-              重新申请
+              {t('passwordReset.reapply')}
             </Link>
           </div>
         </div>
@@ -39,11 +40,11 @@ export default function ResetPassword() {
     setError(null);
 
     if (password.length < 8) {
-      setError('密码长度至少 8 个字符');
+      setError(t('passwordReset.tooShort'));
       return;
     }
     if (password !== confirmPassword) {
-      setError('两次输入的密码不一致');
+      setError(t('passwordReset.mismatch'));
       return;
     }
 
@@ -52,7 +53,7 @@ export default function ResetPassword() {
       await api.resetPassword(token, password);
       setDone(true);
     } catch (e: any) {
-      setError(e.message || '重置失败，链接可能已过期');
+      setError(e.message || t('passwordReset.failed'));
     } finally {
       setLoading(false);
     }
@@ -64,12 +65,12 @@ export default function ResetPassword() {
         <div className="login-card">
           <div className="login-header">
             <CheckCircle size={48} className="login-success-icon" />
-            <h1>密码已重置</h1>
+            <h1>{t('passwordReset.doneTitle')}</h1>
           </div>
-          <p className="login-description">您的密码已成功重置，请使用新密码登录。</p>
+          <p className="login-description">{t('passwordReset.doneHint')}</p>
           <div className="login-actions" style={{ marginTop: 20 }}>
             <button className="btn btn-primary" onClick={() => navigate('/login')}>
-              前往登录
+              {t('passwordReset.goToLogin')}
             </button>
           </div>
         </div>
@@ -82,47 +83,47 @@ export default function ResetPassword() {
       <div className="login-card">
         <div className="login-header">
           <Lock size={32} />
-          <h1>设置新密码</h1>
+          <h1>{t('passwordReset.newPwdTitle')}</h1>
         </div>
-        <p className="login-description">请输入您的新密码。</p>
+        <p className="login-description">{t('passwordReset.newPwdHint')}</p>
 
         {error && <div className="login-error">{error}</div>}
 
         <form onSubmit={handleSubmit} className="login-form">
           <div className="form-group">
-            <label>新密码</label>
+            <label>{t('passwordReset.pwdLabel')}</label>
             <input
               type="password"
               className="form-input"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="至少 8 个字符"
+              placeholder={t('passwordReset.pwdPlaceholder')}
               required
               minLength={8}
               autoFocus
             />
           </div>
           <div className="form-group">
-            <label>确认新密码</label>
+            <label>{t('passwordReset.confirmPwdLabel')}</label>
             <input
               type="password"
               className="form-input"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="再次输入新密码"
+              placeholder={t('passwordReset.confirmPwdPlaceholder')}
               required
             />
           </div>
           <button type="submit" className="btn btn-primary btn-block" disabled={loading}>
             {loading ? <Loader2 size={16} className="spin" /> : <Lock size={16} />}
-            {loading ? '重置中...' : '重置密码'}
+            {loading ? t('passwordReset.submitting') : t('passwordReset.submit')}
           </button>
         </form>
 
         <div className="login-footer">
           <Link to="/login" className="login-footer-link">
             <ArrowLeft size={14} />
-            返回登录
+            {t('passwordReset.backToLogin')}
           </Link>
         </div>
       </div>
